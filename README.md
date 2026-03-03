@@ -1,57 +1,144 @@
 # E-commerce Recommendation System (IA Híbrida)
 
-Uma aplicação full-stack que utiliza Inteligência Artificial para recomendações personalizadas. O sistema utiliza uma arquitetura moderna baseada em **Redes Neurais** e **Busca Vetorial (Vector Search)**.
+Sistema de recomendação **full-stack** que combina a velocidade da
+**Busca Vetorial** com a precisão de **Redes Neurais Deep Learning**
+utilizando **TensorFlow.js**.
+
+------------------------------------------------------------------------
 
 ## 🚀 Arquitetura de Recomendação Híbrida
 
-O projeto resolve o problema de recomendação em duas etapas:
+O projeto utiliza uma estratégia de **duas etapas** para fornecer
+recomendações em tempo real:
 
-1.  **Filtragem por Similaridade (pgvector):**
-    O sistema realiza uma busca vetorial diretamente no PostgreSQL utilizando a extensão `pgvector`. Ele identifica os 100 produtos mais próximos ao perfil do usuário no espaço vetorial. Isso garante baixa latência e eficiência em grandes bases de dados.
+### 1️⃣ Busca Vetorial (pgvector)
 
-2.  **Refinamento por Rede Neural (TensorFlow.js):**
-    Os 100 candidatos filtrados são enviados para um Web Worker. Lá, uma Rede Neural (MLP) processa as características específicas e atribui um "Neural Score". O sistema reordena os produtos e exibe os 10 melhores resultados para o usuário.
+Realiza uma **pré-seleção dos 100 produtos mais similares** ao perfil do
+usuário diretamente no banco de dados **PostgreSQL** utilizando vetores
+de embedding.
 
+### 2️⃣ Refinamento Neural (TensorFlow.js)
 
+Um **Web Worker** processa esses 100 candidatos através de uma **rede
+neural densa**, calculando o **Neural Score final** e retornando o **Top
+10 produtos mais relevantes**.
 
-## 🏗️ Estrutura do Projeto
+------------------------------------------------------------------------
 
-* `index.html` - Interface principal da aplicação.
-* `src/worker/modelTrainingWorker.js` - Worker responsável pelo treinamento e inferência da IA.
-* `src/controller/` - Controladores da API para Produtos, Usuários e Contexto.
-* `server.js` - Servidor Node.js configurado para suportar tráfego de modelos de IA (JSON/Base64).
+## 🛠️ Tecnologias
 
-## 🛠️ Tecnologias Utilizadas
+-   **IA / Machine Learning**
+    -   TensorFlow.js (Deep Learning no Navegador)
+-   **Backend**
+    -   Node.js
+    -   Express
+-   **Banco de Dados**
+    -   PostgreSQL
+    -   pgvector
+-   **Infraestrutura**
+    -   Docker
 
-* **IA/ML:** TensorFlow.js (Deep Learning no Navegador).
-* **Backend:** Node.js & Express.
-* **Banco de Dados:** PostgreSQL + `pgvector`.
-* **Frontend:** Vanilla JavaScript e CSS moderno.
+------------------------------------------------------------------------
 
-## ⚙️ Setup e Configuração
+## ⚙️ Setup e Instalação
 
-1.  **Instalar dependências:**
-    ```bash
-    npm install
-    ```
+### 1️⃣ Banco de Dados (Docker)
 
-2.  **Configurar o Banco de Dados:**
-    Certifique-se de ter o PostgreSQL com a extensão `pgvector` habilitada. Crie a tabela necessária:
-    ```sql
-    CREATE TABLE model_configs (
-        key VARCHAR(255) PRIMARY KEY,
-        data JSONB,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
-    ```
+Este projeto depende da extensão **pgvector**. A forma mais rápida de
+subir o ambiente é via Docker:
 
-3.  **Rodar a aplicação:**
-    ```bash
-    npm start
-    ```
+``` bash
+# Descarrega e sobe o container do PostgreSQL 16 com pgvector
+docker run --name pgvector-db \
+  -e POSTGRES_PASSWORD=SUA_SENHA \
+  -p 5432:5432 \
+  -d pgvector/pgvector:pg16
+```
+
+------------------------------------------------------------------------
+
+### 2️⃣ Configuração do Banco de Dados
+
+Acede ao banco via **DBeaver**, **pgAdmin** ou terminal e executa:
+
+``` sql
+-- Habilita a extensão de vetores
+CREATE EXTENSION IF NOT EXISTS vector;
+
+-- Tabela para persistência do modelo e configurações
+CREATE TABLE model_configs (
+    key VARCHAR(255) PRIMARY KEY,
+    data JSONB,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+------------------------------------------------------------------------
+
+### 3️⃣ Backend e Configuração
+
+No ficheiro de configuração do banco (ex: `src/config/db.js`), insere as
+credenciais do Docker.
+
+Instala as dependências:
+
+``` bash
+npm install
+```
+
+Inicia o servidor:
+
+``` bash
+npm start
+```
+
+------------------------------------------------------------------------
+
+### 4️⃣ Acesso ao Frontend
+
+O servidor normalmente estará disponível em:
+
+    http://localhost:3001
+
+*(ou na porta definida no `server.js`)*
+
+------------------------------------------------------------------------
 
 ## 🧠 Ciclo de Vida da IA
 
-* **Treinamento:** Ao clicar em "Treinar", a rede neural aprende as correlações entre idade, categoria, cor e preço.
-* **Persistência:** Os pesos da rede neural são convertidos para Base64 e salvos no PostgreSQL.
-* **Portabilidade:** O modelo é reconstruído em memória (Client-side) sempre que um usuário acessa a página, sem necessidade de arquivos físicos no servidor.
+### 🔄 Sincronização
+
+Envia os dados dos ficheiros JSON para o banco através das rotas
+`/sync`, populando o PostgreSQL com embeddings e metadados.
+
+### 🎓 Treinamento
+
+Ao clicar em **"Treinar"** no dashboard: - O Web Worker treina a rede
+neural - Os pesos são serializados em **Base64** - O modelo é salvo
+diretamente no PostgreSQL
+
+### 💾 Persistência Inteligente
+
+-   O modelo é carregado do banco diretamente para a **memória do
+    navegador**
+-   Não há necessidade de ficheiros físicos `.json` ou `.bin` no
+    servidor
+-   Atualizações de página não exigem novo treinamento
+
+------------------------------------------------------------------------
+
+## ✅ Benefícios da Arquitetura
+
+-   ⚡ Alta performance em tempo real
+-   🧩 Arquitetura híbrida escalável
+-   🧠 IA totalmente persistente no banco
+-   🌐 Deep Learning rodando no browser
+-   🔥 Zero dependência de storage de modelos no servidor
+
+------------------------------------------------------------------------
+
+## 📌 Status do Projeto
+
+🚧 Em desenvolvimento / experimental\
+Ideal para estudos avançados de **Sistemas de Recomendação**, **Busca
+Vetorial** e **IA no Frontend**.
