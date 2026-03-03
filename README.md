@@ -13,15 +13,11 @@ recomendações em tempo real:
 
 ### 1️⃣ Busca Vetorial (pgvector)
 
-Realiza uma **pré-seleção dos 100 produtos mais similares** ao perfil do
-usuário diretamente no banco de dados **PostgreSQL** utilizando vetores
-de embedding.
+Filtragem Inteligente (Database-side): Em vez de processar milhares de produtos na memória do navegador, o sistema utiliza o ***pgvector*** no PostgreSQL. Através de busca por similaridade de cosseno em vetores de características, o banco de dados filtra instantaneamente os ***100 produtos mais alinhados ao perfil do usuário***.
 
 ### 2️⃣ Refinamento Neural (TensorFlow.js)
 
-Um **Web Worker** processa esses 100 candidatos através de uma **rede
-neural densa**, calculando o **Neural Score final** e retornando o **Top
-10 produtos mais relevantes**.
+Predição Neural (Client-side): Os 100 candidatos selecionados pelo banco são enviados para um ***Web Worker***. A Rede Neural (MLP) então realiza a predição final apenas sobre esse subconjunto, calculando um Neural Score de alta precisão. Isso reduz drasticamente o consumo de RAM e CPU do cliente, permitindo escalar para milhões de produtos.
 
 ------------------------------------------------------------------------
 
