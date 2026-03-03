@@ -59,23 +59,11 @@ docker run --name pgvector-db \
 
 ### 2️⃣ Configuração do Banco de Dados
 
-Acede ao banco via **DBeaver**, **pgAdmin** ou terminal e executa:
-
-``` sql
--- Habilita a extensão de vetores
-CREATE EXTENSION IF NOT EXISTS vector;
-
--- Tabela para persistência do modelo e configurações
-CREATE TABLE model_configs (
-    key VARCHAR(255) PRIMARY KEY,
-    data JSONB,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
+Rodar node setup-db.js
 
 ------------------------------------------------------------------------
 
-### 3️⃣ Backend e Configuração
+### 3️⃣ Iniciando
 
 No ficheiro de configuração do banco (ex: `src/config/db.js`), insere as
 credenciais do Docker.
@@ -86,7 +74,7 @@ Instala as dependências:
 npm install
 ```
 
-Inicia o servidor:
+Inicia a aplicacao:
 
 ``` bash
 npm start
@@ -94,13 +82,15 @@ npm start
 
 ------------------------------------------------------------------------
 
-### 4️⃣ Acesso ao Frontend
+### 4️⃣ Iniciando o Backend
 
 O servidor normalmente estará disponível em:
 
     http://localhost:3001
 
-*(ou na porta definida no `server.js`)*
+``` bash
+node server.js
+```
 
 ------------------------------------------------------------------------
 
@@ -121,9 +111,7 @@ diretamente no PostgreSQL
 
 -   O modelo é carregado do banco diretamente para a **memória do
     navegador**
--   Não há necessidade de ficheiros físicos `.json` ou `.bin` no
-    servidor
--   Atualizações de página não exigem novo treinamento
+-   Atualizações de página não exigem novo treinamento toda vez que abre, reutiliza o modelo que foi armazenado em banco
 
 ------------------------------------------------------------------------
 
@@ -133,7 +121,7 @@ diretamente no PostgreSQL
 -   🧩 Arquitetura híbrida escalável
 -   🧠 IA totalmente persistente no banco
 -   🌐 Deep Learning rodando no browser
--   🔥 Zero dependência de storage de modelos no servidor
+
 
 ------------------------------------------------------------------------
 
